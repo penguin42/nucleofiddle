@@ -1,0 +1,21 @@
+Just me fiddling with an STM32F401 Nucleo board
+
+Grab the stlink tools and then do:
+
+./st-util -m
+
+that starts a gdb server which you can then connect to:
+
+[dg@major ~]$ arm-none-eabi-gdb 
+(gdb) target extended-remote localhost:4242
+
+and then load the binary you built from this source:
+(gdb) load /discs/more/nucleo/fiddle/fiddle
+Loading section .text, size 0x170 lma 0x8000000
+Start address 0x8000008, load size 368
+Transfer rate: 396 bytes/sec, 368 bytes/write.
+
+you can see the serial using a terminal connected to the /dev/ttyACM0
+setup for 9k6 8n1
+
+dave@treblig.org

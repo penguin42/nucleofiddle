@@ -101,8 +101,18 @@ void setup_clocks_etc(void)
   RCC->CFGR |= RCC_CFGR_SW_PLL;
 }
 
+void setup_interrupts(void)
+{
+  /* Enable interrupts */
+  __set_PRIMASK(0);
+  __enable_irq();
+}
+
 int main(void)
 {
+  /* Disable interrupts until we've got everything sorted */
+  __disable_irq();
+  __set_PRIMASK(1);
   setup_clocks_etc();
 
   /* Enable clocks to GPIO */
@@ -113,6 +123,8 @@ int main(void)
   GPIOA->MODER |= GPIO_MODER_MODER5_0;
   /* Make it 'push pull' rather than open drain */
   GPIOA->OTYPER &= ~GPIO_OTYPER_OT_5;
+
+  setup_interrupts();
 
   setup_usart();
 

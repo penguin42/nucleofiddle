@@ -3,6 +3,9 @@
 /* (c) Dr. David Alan Gilbert (dave@treblig.org) 2015
  *   GPL v2 or above
  */
+
+volatile unsigned char last_rx = 'B';
+
 static int delay(void)
 {
     unsigned int x, total;
@@ -15,6 +18,7 @@ static int delay(void)
 
 static void setup_usart(void)
 {
+  int dummy;
   /* The USART2 hangs off APB1 (42 MHz) that hangs off AHB1 */
   /* PA2 is output, PA3 is input both using Alternate function 7 */
   GPIOA->MODER &= ~(GPIO_MODER_MODER2 | GPIO_MODER_MODER3);
@@ -36,7 +40,29 @@ static void setup_usart(void)
   USART2->BRR = 0x1117;
   /* Set TE in USART_CR1 to send idle as 1st transmission */
   USART2->CR1 |= USART_CR1_TE;
-  /* Start writing data into USART_DR */
+
+  /* Get the UART to interrupt on overruns or receive ready */
+  USART2->CR1 |= USART_CR1_RE | USART_CR1_RXNEIE;
+  /* Clear pending rx interrupts */
+  dummy=USART2->SR;
+  dummy=USART2->DR;
+  /* Let the NVIC respond to UART2 interrupts */
+  NVIC_EnableIRQ(USART2_IRQn);
+}
+
+/* Interrupt handler for USART2 */
+void handler_usart2(void)
+{
+  unsigned int sr = USART2->SR;
+  unsigned int dr = USART2->DR; /* Reading DR clears RXNE, reading it after SR clears ORE */
+
+  if (sr & USART_SR_RXNE) {
+    /* Real data */
+    last_rx = dr & 255;
+  } else {
+    /* Overrun is the only other thing enabled */
+    last_rx = 'X';
+  }
 }
 
 /* Set up clock debug - this sets up the PLL/5 to PA8, and sysclock/4 to PC9
@@ -136,7 +162,7 @@ int main(void)
     USART2->DR = 'A';
     GPIOA->ODR |= GPIO_ODR_ODR_5;
     delay();
-    USART2->DR = 'B';
+    USART2->DR = last_rx;
   };
 }
 

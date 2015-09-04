@@ -59,7 +59,7 @@
   .word 0xdeadbeef            /* 0xcc IRQ35 - SPI1                  */
   .word 0xdeadbeef            /* 0xd0 IRQ36 - SPI2                  */
   .word 0xdeadbeef            /* 0xd4 IRQ37 - USART1                */
-  .word 0xdeadbeef            /* 0xd8 IRQ38 - USART2                */
+  .word handler_usart2        /* 0xd8 IRQ38 - USART2                */
   .word 0xdeadbeef            /* 0xdc IRQ39 -                       */
   .word 0xdeadbeef            /* 0xe0 IRQ40 - EXTI Line[15:10]      */
   .word 0xdeadbeef            /* 0xe4 IRQ41 - EXTI Line 17/RTC      */

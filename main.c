@@ -1,10 +1,12 @@
 #include "stm32f401xe.h"
+#define HZ 100
 
 /* (c) Dr. David Alan Gilbert (dave@treblig.org) 2015
  *   GPL v2 or above
  */
 
 volatile unsigned char last_rx = 'B';
+volatile uint32_t now = 0;
 
 static int delay(void)
 {
@@ -63,6 +65,25 @@ void handler_usart2(void)
     /* Overrun is the only other thing enabled */
     last_rx = 'X';
   }
+}
+
+static void setup_systick(void)
+{
+  now = 0;
+  /* Run it off our 84MHz cpu core, for 100Hz */
+  SysTick->LOAD = (84000000/HZ)-1; /* See 4.5.2 says to use n-1 for regular */
+  SysTick->VAL = 0; /* Clear current count */
+  /* Use core clock, interrupt on tick, and enable it */
+  SysTick->CTRL |= SysTick_CTRL_CLKSOURCE_Msk |
+                   SysTick_CTRL_ENABLE_Msk |
+                   SysTick_CTRL_TICKINT_Msk;
+
+}
+
+/* Intterupt handler for systick */
+void handler_systick(void)
+{
+  now++;
 }
 
 /* Set up clock debug - this sets up the PLL/5 to PA8, and sysclock/4 to PC9
@@ -152,6 +173,7 @@ int main(void)
 
   setup_interrupts();
 
+  setup_systick();
   setup_usart();
 
   /* clock_debug(); */

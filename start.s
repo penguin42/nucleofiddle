@@ -20,7 +20,7 @@
   .word 0xdeadbeef            /* 0x30 Reversed (for debug)          */
   .word 0xdeadbeef            /* 0x34 Reserved                      */
   .word 0xdeadbeef            /* 0x38 PendSV                        */
-  .word 0xdeadbeef            /* 0x3c Systick                       */
+  .word handler_systick       /* 0x3c Systick                       */
   .word 0xdeadbeef            /* 0x40 IRQ0 - Window watchdog        */
   .word 0xdeadbeef            /* 0x44 IRQ1 - EXTI line 16           */
   .word 0xdeadbeef            /* 0x48 IRQ2 - EXTI line 21           */
